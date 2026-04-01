@@ -12,7 +12,10 @@
     ],
     "ios": {
       "bundleIdentifier": "com.iivan.habitquest",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.iivan.habitquest",

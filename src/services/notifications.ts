@@ -1,17 +1,26 @@
 import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 import type { HabitTask } from "@/domain/types";
 import { allWeekdays } from "@/utils/date";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false
-  })
-});
+const isWeb = Platform.OS === "web";
+
+if (!isWeb) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false
+    })
+  });
+}
 
 export const requestNotificationPermission = async () => {
+  if (isWeb) {
+    return false;
+  }
+
   const settings = await Notifications.getPermissionsAsync();
 
   if (settings.granted) {
@@ -23,6 +32,10 @@ export const requestNotificationPermission = async () => {
 };
 
 export const syncTaskNotifications = async (tasks: HabitTask[]) => {
+  if (isWeb) {
+    return;
+  }
+
   await Notifications.cancelAllScheduledNotificationsAsync();
 
   const eligibleTasks = tasks.filter((task) => task.alert?.enabled);
