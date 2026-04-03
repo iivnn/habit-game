@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
-import { Animated, Pressable, Text, View } from "react-native";
+import { Animated, Platform, Pressable, Text, View } from "react-native";
 import type { HabitTask } from "@/domain/types";
 import { theme } from "@/theme";
 import { formatTime } from "@/utils/date";
+
+const isWeb = Platform.OS === "web";
 
 const getQuestTypeMeta = (task: HabitTask) => {
   if (task.frequency !== "daily") {
@@ -27,11 +29,13 @@ const getQuestTypeMeta = (task: HabitTask) => {
 export const TaskCard = ({
   task,
   onComplete,
-  onLongPress
+  onLongPress,
+  onWebDelete
 }: {
   task: HabitTask;
   onComplete: () => void;
   onLongPress: () => void;
+  onWebDelete?: () => void;
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(task.completed ? 1 : 0)).current;
@@ -105,7 +109,8 @@ export const TaskCard = ({
             borderWidth: 2,
             borderRadius: theme.radius.sm,
             paddingHorizontal: theme.spacing.md,
-            paddingVertical: 12,
+            paddingTop: 12,
+            paddingBottom: isWeb && onWebDelete ? 14 : 12,
             gap: 4,
             shadowColor: theme.colors.success,
             shadowOpacity: glow,
@@ -169,6 +174,23 @@ export const TaskCard = ({
               </Text>
             </Animated.View>
           </View>
+
+          {isWeb && onWebDelete ? (
+            <View style={{ flexDirection: "row", justifyContent: "flex-end", marginTop: 2 }}>
+              <Pressable
+                onPress={onWebDelete}
+                style={{
+                  minWidth: 36,
+                  minHeight: 36,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 5
+                }}
+              >
+                <Text style={{ color: theme.colors.danger, fontSize: 20, lineHeight: 20 }}>🗑</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </Animated.View>
       </Pressable>
     </Animated.View>

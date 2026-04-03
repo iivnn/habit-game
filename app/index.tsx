@@ -564,6 +564,7 @@ export default function HomeScreen() {
                     task={task}
                     onComplete={() => handleToggleTask(task.id, task.completed)}
                     onLongPress={() => openTaskActions(task)}
+                    onWebDelete={() => confirmDeleteTask(task.id, task.title)}
                   />
                 ))
               ) : (
@@ -579,6 +580,7 @@ export default function HomeScreen() {
                     task={task}
                     onComplete={() => handleToggleTask(task.id, task.completed)}
                     onLongPress={() => openTaskActions(task)}
+                    onWebDelete={() => confirmDeleteTask(task.id, task.title)}
                   />
                 ))
               ) : (
