@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Share } from "react-native";
+import { Alert, Platform, Share } from "react-native";
 import { Animated, ScrollView, Text, View, Pressable, Vibration } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,9 +22,10 @@ import type { CharacterClassId, HabitTask } from "@/domain/types";
 import { isTaskActiveOnDate } from "@/utils/date";
 
 type HomeTab = "quests" | "history" | "forge" | "market" | "settings";
+const isWeb = Platform.OS === "web";
 
 export default function HomeScreen() {
-  const { state, ready, selectClass, addTask, editTask, finishTask, deleteTask, buyShopItem, setEquippedCompanion, dismissOnboarding, resetGame, classLabel } = useGame();
+  const { state, ready, selectClass, addTask, editTask, finishTask, deleteTask, buyShopItem, setEquippedCompanion, dismissOnboarding, clearHistory, resetGame, classLabel } = useGame();
   const stats = useGameStats();
   const [heroName, setHeroName] = useState("");
   const [selectedClassId, setSelectedClassId] = useState<CharacterClassId>("warrior");
@@ -86,6 +87,13 @@ export default function HomeScreen() {
   );
 
   const confirmReset = () => {
+    if (isWeb) {
+      if (globalThis.confirm("Isso vai apagar o personagem atual, tarefas e relatórios salvos. Deseja continuar?")) {
+        resetGame();
+      }
+      return;
+    }
+
     Alert.alert(
       "Resetar progresso",
       "Isso vai apagar o personagem atual, tarefas e relatórios salvos. Deseja continuar?",
@@ -97,13 +105,53 @@ export default function HomeScreen() {
   };
 
   const confirmDeleteTask = (taskId: string, taskTitle: string) => {
+    if (isWeb) {
+      if (globalThis.confirm(`Deseja excluir a tarefa "${taskTitle}"?`)) {
+        deleteTask(taskId);
+      }
+      return;
+    }
+
     Alert.alert("Excluir tarefa", `Deseja excluir a tarefa "${taskTitle}"?`, [
       { text: "Cancelar", style: "cancel" },
       { text: "Excluir", style: "destructive", onPress: () => deleteTask(taskId) }
     ]);
   };
 
+  const confirmClearHistory = () => {
+    if (isWeb) {
+      if (globalThis.confirm("Isso vai apagar os relatórios e o histórico de tarefas concluídas. Deseja continuar?")) {
+        clearHistory();
+      }
+      return;
+    }
+
+    Alert.alert(
+      "Limpar histórico",
+      "Isso vai apagar os relatórios e o histórico de tarefas concluídas. Deseja continuar?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Limpar", style: "destructive", onPress: clearHistory }
+      ]
+    );
+  };
+
   const openTaskActions = (task: HabitTask) => {
+    if (isWeb) {
+      const action = globalThis.prompt(`Ação para "${task.title}": digite editar ou excluir`, "editar");
+
+      if (action?.toLowerCase() === "editar") {
+        setEditingTask(task);
+        setActiveTab("forge");
+      }
+
+      if (action?.toLowerCase() === "excluir") {
+        confirmDeleteTask(task.id, task.title);
+      }
+
+      return;
+    }
+
     Alert.alert(task.title, "Escolha uma ação para essa tarefa.", [
       {
         text: "Editar",
@@ -628,6 +676,20 @@ export default function HomeScreen() {
               <Text style={{ color: theme.colors.text }}>
                 Use esta opção somente se quiser apagar o progresso atual e retornar para a escolha de classe.
               </Text>
+              <Pressable
+                onPress={confirmClearHistory}
+                style={{
+                  backgroundColor: theme.colors.panelAlt,
+                  borderColor: theme.colors.border,
+                  borderWidth: 2,
+                  borderRadius: theme.radius.md,
+                  padding: theme.spacing.md
+                }}
+              >
+                <Text style={{ color: theme.colors.text, textAlign: "center", fontWeight: "900" }}>
+                  Limpar histórico
+                </Text>
+              </Pressable>
               <Pressable
                 onPress={confirmReset}
                 style={{

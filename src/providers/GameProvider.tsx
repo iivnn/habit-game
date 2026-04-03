@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { AppState } from "react-native";
-import { createInitialState, createPlayer, createTask, equipCompanion, purchaseShopItem, removeTask, setOnboardingSeen, toggleTaskCompletion, updateTask } from "@/domain/GameEngine";
+import { clearHistory, createInitialState, createPlayer, createTask, equipCompanion, purchaseShopItem, removeTask, setOnboardingSeen, toggleTaskCompletion, updateTask } from "@/domain/GameEngine";
 import { getCharacterClass } from "@/domain/classes/registry";
 import { applyResets, createEndOfDayReportIfNeeded } from "@/domain/ResetService";
 import type { CharacterClassId, DailyQuestType, HabitTask, ShopItemId, Weekday, WorldState } from "@/domain/types";
@@ -37,6 +37,7 @@ interface GameContextValue {
   buyShopItem: (itemId: ShopItemId) => void;
   setEquippedCompanion: (itemId: ShopItemId) => void;
   dismissOnboarding: () => void;
+  clearHistory: () => void;
   resetGame: () => void;
   classLabel?: string;
 }
@@ -151,6 +152,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       },
       dismissOnboarding: () => {
         setState((current) => setOnboardingSeen(current));
+      },
+      clearHistory: () => {
+        setState((current) => clearHistory(current));
       },
       resetGame: () => {
         const nextState = createInitialState();

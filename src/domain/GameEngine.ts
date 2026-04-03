@@ -211,3 +211,10 @@ export const setOnboardingSeen = (state: WorldState): WorldState => ({
     hasSeenOnboarding: true
   }
 });
+
+export const clearHistory = (state: WorldState): WorldState => ({
+  ...state,
+  dailyReports: [],
+  activityHistory: [],
+  lastReportGeneratedFor: undefined
+});
