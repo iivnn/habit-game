@@ -1,10 +1,21 @@
 import type { HabitTask, Weekday } from "@/domain/types";
 
-export const getStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+export const DAILY_RESET_HOUR = 2;
+
+export const getLogicalDate = (date: Date) => {
+  const next = new Date(date);
+  next.setHours(next.getHours() - DAILY_RESET_HOUR, 0, 0, 0);
+  return next;
+};
+
+export const getStartOfDay = (date: Date) => {
+  const logicalDate = getLogicalDate(date);
+  return new Date(logicalDate.getFullYear(), logicalDate.getMonth(), logicalDate.getDate(), DAILY_RESET_HOUR, 0, 0, 0);
+};
 
 export const getStartOfWeek = (date: Date) => {
   const next = getStartOfDay(date);
-  const day = next.getDay();
+  const day = getLogicalDate(date).getDay();
   const diff = day === 0 ? -6 : 1 - day;
   next.setDate(next.getDate() + diff);
   return next;

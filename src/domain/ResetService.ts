@@ -1,5 +1,5 @@
 import type { HabitTask, WorldState } from "@/domain/types";
-import { formatIsoDate, getStartOfDay, getStartOfWeek, isSameIsoDate, isTaskActiveOnDate } from "@/utils/date";
+import { formatIsoDate, getLogicalDate, getStartOfDay, getStartOfWeek, isSameIsoDate, isTaskActiveOnDate } from "@/utils/date";
 
 const resetTasksByFrequency = (tasks: HabitTask[], frequency: HabitTask["frequency"]) =>
   tasks.map((task) =>
@@ -33,8 +33,8 @@ export const applyResets = (state: WorldState, now: Date) => {
 };
 
 export const createEndOfDayReportIfNeeded = (state: WorldState, now: Date) => {
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
+  const yesterday = getLogicalDate(now);
+  yesterday.setDate(yesterday.getDate() - 1);
   const reportDate = formatIsoDate(yesterday);
 
   if (state.lastReportGeneratedFor === reportDate) {
